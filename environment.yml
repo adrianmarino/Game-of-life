@@ -1,0 +1,11 @@
+name: life-game
+channels:
+- https://conda.anaconda.org/menpo
+- defaults
+- conda-forge
+- anaconda
+- conda-forge/label/cf201901
+- cogsci
+dependencies:
+    - pygame
+    - numpy
