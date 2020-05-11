@@ -1,45 +1,60 @@
-from collections import namedtuple
-
-import numpy as np
 import pygame as pg
 
-Point = namedtuple('Point', 'x y')
-Size = namedtuple('Size', 'width height')
-Division = namedtuple('Division', 'x y')
+from board import Board
+from color import background_color
+from tuples import Size
 
 screen_size = Size(width=1000, height=1000)
-background_color = (25, 25, 25)
-cell_color = (128, 128, 128)
-screen_division = Point(x=25, y=25)
-
-cell_size = Size(
-    width=screen_size.width / screen_division.x,
-    height=screen_size.height / screen_division.x
-)
-
-game_state = np.zeros(screen_division)
-
-pg.init()
-screen = pg.display.set_mode(screen_size)
-screen.fill(background_color)
 
 
-def box_cords(point, size):
-    return [
-        (point.x * size.width, point.y * size.height),
-        (point.x * size.width, (point.y + 1) * size.height),
-        ((point.x + 1) * size.width, (point.y + 1) * size.height),
-        ((point.x + 1) * size.width, point.y * size.height)
-    ]
+def rules(board, cell):
+    live_neighbors = board.live_neighbors_of(cell)
+    new_cell = next_board[cell.x, cell.y]
+
+    # Life game rules...
+    if cell.is_death() and live_neighbors == 3:
+        new_cell.give_life()
+    if cell.is_alive() and (live_neighbors < 2 or live_neighbors > 3):
+        new_cell.kill()
 
 
-def draw_cell(output, point, size, color=cell_color):
-    pg.draw.polygon(output, color, box_cords(point, size), 1)
+def init(board):
+    board[5, 3].give_life()
+    board[5, 4].give_life()
+    board[5, 5].give_life()
+
+    board[21, 21].give_life()
+    board[22, 22].give_life()
+    board[22, 23].give_life()
+    board[21, 23].give_life()
+    board[20, 23].give_life()
+
+    board[31, 31].give_life()
+    board[32, 32].give_life()
+    board[32, 33].give_life()
+    board[31, 33].give_life()
+    board[30, 33].give_life()
+    
+    board[11, 11].give_life()
+    board[12, 12].give_life()
+    board[12, 13].give_life()
+    board[11, 13].give_life()
+    board[10, 13].give_life()
 
 
-while True:
-    for y in range(0, screen_division.y):
-        for x in range(0, screen_division.x):
-            draw_cell(screen, Point(x, y), cell_size)
+if __name__ == "__main__":
+    board = Board(rows=40, columns=40, size=screen_size)
+    init(board)
 
-    pg.display.flip()
+    pg.init()
+    screen = pg.display.set_mode(screen_size)
+    while True:
+        screen.fill(background_color)
+        next_board = board.copy()
+
+        for cell in board.cells():
+            cell.draw_on(screen)
+            rules(board, cell)
+
+        pg.display.flip()
+        board = next_board

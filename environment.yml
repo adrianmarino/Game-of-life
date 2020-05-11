@@ -7,5 +7,6 @@ channels:
 - conda-forge/label/cf201901
 - cogsci
 dependencies:
+    - python=3.6
     - pygame
     - numpy
