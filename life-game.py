@@ -1,10 +1,11 @@
+import numpy as np
 import pygame as pg
 
 from board import Board
 from color import background_color
 from tuples import Size
 
-screen_size = Size(width=1000, height=1000)
+screen_size = Size(width=1600, height=1600)
 
 
 def rules(board, cell):
@@ -18,43 +19,39 @@ def rules(board, cell):
         new_cell.kill()
 
 
-def init(board):
-    board[5, 3].give_life()
-    board[5, 4].give_life()
-    board[5, 5].give_life()
-
-    board[21, 21].give_life()
-    board[22, 22].give_life()
-    board[22, 23].give_life()
-    board[21, 23].give_life()
-    board[20, 23].give_life()
-
-    board[31, 31].give_life()
-    board[32, 32].give_life()
-    board[32, 33].give_life()
-    board[31, 33].give_life()
-    board[30, 33].give_life()
-    
-    board[11, 11].give_life()
-    board[12, 12].give_life()
-    board[12, 13].give_life()
-    board[11, 13].give_life()
-    board[10, 13].give_life()
-
-
 if __name__ == "__main__":
+    play = False
+    execute = True
     board = Board(rows=40, columns=40, size=screen_size)
-    init(board)
-
     pg.init()
     screen = pg.display.set_mode(screen_size)
-    while True:
+    while execute:
+        for event in pg.event.get():
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    execute = False
+                elif event.key == pg.K_SPACE:
+                    play = not play
+
+        if not play:
+            mouse_click = pg.mouse.get_pressed()
+            if sum(mouse_click) > 0:
+                mouse_x, mouse_y = pg.mouse.get_pos()
+                cel_x = int(np.floor(mouse_x / board.rows))
+                cel_y = int(np.floor(mouse_y / board.columns))
+
+                if mouse_click[2]:
+                    board[cel_x, cel_y].kill()
+                else:
+                    board[cel_x, cel_y].give_life()
+
         screen.fill(background_color)
         next_board = board.copy()
-
         for cell in board.cells():
             cell.draw_on(screen)
-            rules(board, cell)
+
+            if play:
+                rules(board, cell)
 
         pg.display.flip()
         board = next_board
